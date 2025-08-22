@@ -37,22 +37,22 @@ public class ProjectileAbility : ActiveAbility<ProjectileAbility.State>
 		where TBuilder : AbstractBuilder<TBuilder, TAbility>
 		where TAbility : ProjectileAbility, new()
 	{
-		
+
 		public interface IGetAbilitiesStep
 		{
 			IAbilityCardSideStep WithGetAbilities(Func<Hex, List<Ability>> getAbilities);
 		}
-		
+
 		public interface IAbilityCardSideStep
 		{
 			IRangeStep WithAbilityCardSide(AbilityCardSide abilityCardSide);
 		}
-		
+
 		public interface IRangeStep
 		{
 			TBuilder WithRange(int range);
 		}
-		
+
 		public IAbilityCardSideStep WithGetAbilities(Func<Hex, List<Ability>> getAbilities)
 		{
 			Obj._getAbilities = getAbilities;
@@ -91,28 +91,12 @@ public class ProjectileAbility : ActiveAbility<ProjectileAbility.State>
 	/// A convenience method that returns an instance of ProjectileBuilder.
 	/// </summary>
 	/// <returns></returns>
-	public static ProjectileBuilder.IGetAbilitiesStep Builder()
+	public static AbstractBuilder<ProjectileBuilder, ProjectileAbility>.IGetAbilitiesStep Builder()
 	{
 		return new ProjectileBuilder();
 	}
 
 	public ProjectileAbility() { }
-
-	public ProjectileAbility(int range, Func<Hex, List<Ability>> getAbilities, AbilityCardSide abilityCardSide, int targets = 1,
-		Func<State, GDTask> onAbilityStarted = null, Func<State, GDTask> onAbilityEnded = null, Func<State, GDTask> onAbilityEndedPerformed = null,
-		ConditionalAbilityCheckDelegate conditionalAbilityCheck = null,
-		Func<State, string> getHintText = null,
-		List<ScenarioEvent<ScenarioEvents.AbilityStarted.Parameters>.Subscription> abilityStartedSubscriptions = null,
-		List<ScenarioEvent<ScenarioEvents.AbilityEnded.Parameters>.Subscription> abilityEndedSubscriptions = null,
-		List<ScenarioEvent<ScenarioEvents.AbilityPerformed.Parameters>.Subscription> abilityPerformedSubscriptions = null)
-		: base(onAbilityStarted, onAbilityEnded, onAbilityEndedPerformed, conditionalAbilityCheck, getHintText, abilityStartedSubscriptions,
-			abilityEndedSubscriptions, abilityPerformedSubscriptions)
-	{
-		_getAbilities = getAbilities;
-		Range = range;
-		AbilityCardSide = abilityCardSide;
-		Targets = targets;
-	}
 
 	protected override async GDTask Perform(State abilityState)
 	{
