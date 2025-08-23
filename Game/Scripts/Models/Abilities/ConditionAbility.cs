@@ -39,7 +39,7 @@ public class ConditionAbility : TargetedAbility<ConditionAbility.State, SingleTa
 		public TBuilder WithAfterTargetConfirmedSubscriptions(
 			List<ScenarioEvent<ScenarioEvents.ConditionAfterTargetConfirmed.Parameters>.Subscription> afterTargetConfirmedSubscriptions)
 		{
-			Obj.AfterTargetConfirmedSubscriptions.AddRange(afterTargetConfirmedSubscriptions);
+			Obj.AfterTargetConfirmedSubscriptions = afterTargetConfirmedSubscriptions;
 			return (TBuilder)this;
 		}
 
