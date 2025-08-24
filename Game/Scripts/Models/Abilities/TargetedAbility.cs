@@ -282,6 +282,9 @@ public abstract class TargetedAbility<T, TSingleTargetState> : Ability<T>
 		/// </summary>
 		public override TAbility Build()
 		{
+			int targets = Obj.AOEPattern != null ? Obj.AOEPattern.Hexes.Count(hex => hex.Type == AOEHexType.Red) : Obj.Targets;
+			Obj.Targets = targets;
+
 			Obj.GetTargetingHintText = GetTargetingHintText ?? Obj.DefaultTargetingHintText;
 			return base.Build();
 		}
@@ -325,6 +328,7 @@ public abstract class TargetedAbility<T, TSingleTargetState> : Ability<T>
 
 		if(AOEPattern != null)
 		{
+			// int redHexes = 0;
 			Dictionary<Vector2I, AOEHexType> aoeHexes = new Dictionary<Vector2I, AOEHexType>();
 
 			//TODO: Add `during ability` scenario events to the aoe prompts so the range can be increased 
@@ -342,6 +346,10 @@ public abstract class TargetedAbility<T, TSingleTargetState> : Ability<T>
 				for(int i = 0; i < aoeAnswer.HexCoords.Count; i++)
 				{
 					aoeHexes.Add(aoeAnswer.HexCoords[i], aoeAnswer.HexTypes[i]);
+					// if(aoeAnswer.HexTypes[i].Equals(AOEHexType.Red))
+					// {
+					// 	redHexes++;
+					// }
 				}
 			}
 			else
@@ -360,10 +368,14 @@ public abstract class TargetedAbility<T, TSingleTargetState> : Ability<T>
 				for(int i = 0; i < aoeAnswer.HexCoords.Count; i++)
 				{
 					aoeHexes.Add(aoeAnswer.HexCoords[i], aoeAnswer.HexTypes[i]);
+					// if(aoeAnswer.HexTypes[i].Equals(AOEHexType.Red))
+					// {
+					// 	redHexes++;
+					// }
 				}
+				abilityState.AOEHexes = aoeHexes;
+				// abilityState.AbilityTargets = redHexes;
 			}
-
-			abilityState.AOEHexes = aoeHexes;
 		}
 
 		Action<List<Figure>> getValidTargets = figures =>

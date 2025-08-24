@@ -57,6 +57,7 @@ public class SavedCampaign
 			ModelDB.Item<WingedShoes>(),
 			ModelDB.Item<ShoesOfHappiness>(),
 			ModelDB.Item<BootsOfSpeed>(),
+			ModelDB.Item<BattleAxe>(),
 			ModelDB.Item<HeaterShield>(),
 			ModelDB.Item<PoisonDagger>(),
 			ModelDB.Item<HookedChain>(),
@@ -64,6 +65,7 @@ public class SavedCampaign
 			ModelDB.Item<MinorHealingPotion>(),
 			ModelDB.Item<MinorPowerPotion>(),
 			ModelDB.Item<MinorManaPotion>(),
+			ModelDB.Item<LongSpear>(),
 		];
 
 		foreach(ItemModel itemModel in itemModels)

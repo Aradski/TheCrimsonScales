@@ -39,7 +39,8 @@ public abstract class ItemModel : AbstractModel<ItemModel> //, IEventSubscriber
 	public Character Owner { get; private set; }
 	public ItemState ItemState { get; private set; }
 	public int UseSlotIndex { get; private set; }
-	public int CurrentUseCountWithMaxUseCount { get; private set; } // Used for items like orbs, which can be used multiple times before being consumed without having use slots
+	// Used for items like orbs, which can be used multiple times before being consumed without having use slots
+	public int CurrentUseCountWithMaxUseCount { get; private set; }
 
 	public bool HasUseSlots => UseSlots != null && UseSlots.Count > 0;
 	public bool HasMaxUseCount => MaxUseCount > 1;
@@ -124,6 +125,7 @@ public abstract class ItemModel : AbstractModel<ItemModel> //, IEventSubscriber
 
 	protected virtual void Unsubscribe()
 	{
+		ScenarioEvents.AbilityStartedEvent.Unsubscribe(this, _subscriber);
 		ScenarioEvents.DuringAttackEvent.Unsubscribe(this, _subscriber);
 		ScenarioEvents.AttackAfterTargetConfirmedEvent.Unsubscribe(this, _subscriber);
 		ScenarioEvents.DuringMovementEvent.Unsubscribe(this, _subscriber);
@@ -241,6 +243,28 @@ public abstract class ItemModel : AbstractModel<ItemModel> //, IEventSubscriber
 			effectInfoViewParameters: _effectInfoViewParameters);
 	}
 
+	// TODO varadski 24.08.2025: do we care to support non-attack abilities?
+	protected void SubscribeDuringAttackAbilityStarted(Func<AttackAbility.State, bool> canApply = null,
+		Func<AttackAbility.State, GDTask> apply = null,
+		int order = 0, bool canApplyMultipleTimesDuringAbility = true)
+	{
+		ScenarioEvents.AbilityStartedEvent.Subscribe(this, _subscriber,
+			canApplyParameters => canApply == null ||
+			                      canApplyParameters.AbilityState is AttackAbility.State state && canApply(state),
+			async applyParameters =>
+			{
+				if(apply != null && applyParameters.AbilityState is AttackAbility.State state)
+				{
+					await apply(state);
+				}
+			},
+			HasUseSlots ? EffectType.SelectableMandatory : EffectType.Selectable,
+			order: order,
+			canApplyMultipleTimesInEffectCollection: canApplyMultipleTimesDuringAbility,
+			effectButtonParameters: _effectButtonParameters,
+			effectInfoViewParameters: _effectInfoViewParameters);
+	}
+
 	protected void SubscribeDuringAttack(Func<AttackAbility.State, bool> canApply = null, Func<AttackAbility.State, GDTask> apply = null,
 		int order = 0, bool canApplyMultipleTimesDuringAbility = false)
 	{
@@ -260,7 +284,8 @@ public abstract class ItemModel : AbstractModel<ItemModel> //, IEventSubscriber
 			effectInfoViewParameters: _effectInfoViewParameters);
 	}
 
-	protected void SubscribeAttackAfterTargetConfirmed(Func<AttackAbility.State, bool> canApply = null, Func<AttackAbility.State, GDTask> apply = null,
+	protected void SubscribeAttackAfterTargetConfirmed(Func<AttackAbility.State, bool> canApply = null,
+		Func<AttackAbility.State, GDTask> apply = null,
 		int order = 0, bool canApplyMultipleTimesDuringAbility = false)
 	{
 		ScenarioEvents.AttackAfterTargetConfirmedEvent.Subscribe(this, _subscriber,
@@ -298,7 +323,8 @@ public abstract class ItemModel : AbstractModel<ItemModel> //, IEventSubscriber
 			effectInfoViewParameters: _effectInfoViewParameters);
 	}
 
-	protected void SubscribeSufferDamage(ScenarioEvent<ScenarioEvents.SufferDamage.Parameters>.CanApplyFunction canApply = null, ScenarioEvent<ScenarioEvents.SufferDamage.Parameters>.ApplyFunction apply = null,
+	protected void SubscribeSufferDamage(ScenarioEvent<ScenarioEvents.SufferDamage.Parameters>.CanApplyFunction canApply = null,
+		ScenarioEvent<ScenarioEvents.SufferDamage.Parameters>.ApplyFunction apply = null,
 		int order = 0, bool canApplyMultipleTimesDuringAbility = false)
 	{
 		ScenarioEvents.SufferDamageEvent.Subscribe(this, _subscriber,
@@ -311,7 +337,8 @@ public abstract class ItemModel : AbstractModel<ItemModel> //, IEventSubscriber
 			effectInfoViewParameters: _effectInfoViewParameters);
 	}
 
-	protected void SubscribeRetaliate(ScenarioEvent<ScenarioEvents.Retaliate.Parameters>.CanApplyFunction canApply = null, ScenarioEvent<ScenarioEvents.Retaliate.Parameters>.ApplyFunction apply = null,
+	protected void SubscribeRetaliate(ScenarioEvent<ScenarioEvents.Retaliate.Parameters>.CanApplyFunction canApply = null,
+		ScenarioEvent<ScenarioEvents.Retaliate.Parameters>.ApplyFunction apply = null,
 		int order = 0, bool canApplyMultipleTimesDuringAbility = false)
 	{
 		ScenarioEvents.RetaliateEvent.Subscribe(this, _subscriber,
@@ -324,7 +351,8 @@ public abstract class ItemModel : AbstractModel<ItemModel> //, IEventSubscriber
 			effectInfoViewParameters: _effectInfoViewParameters);
 	}
 
-	protected void SubscribeInitiativesSorted(ScenarioEvent<ScenarioEvents.InitiativesSorted.Parameters>.CanApplyFunction canApply = null, ScenarioEvent<ScenarioEvents.InitiativesSorted.Parameters>.ApplyFunction apply = null,
+	protected void SubscribeInitiativesSorted(ScenarioEvent<ScenarioEvents.InitiativesSorted.Parameters>.CanApplyFunction canApply = null,
+		ScenarioEvent<ScenarioEvents.InitiativesSorted.Parameters>.ApplyFunction apply = null,
 		int order = 0, bool canApplyMultipleTimesDuringAbility = false)
 	{
 		ScenarioEvents.InitiativesSortedEvent.Subscribe(this, _subscriber,
